@@ -1,0 +1,13 @@
+<div id="connect">
+  <h3>Step 1: Connect your car</h3>
+  <p>
+    The first step is to connect to a vehicle using Smartcar's authorization flow. Clicking "Connect your car" below will redirect to Smartcar, allowing you to authenticate with a Smartcar-supported vehicle.
+  </p>
+  <button type="button" class="btn btn-primary" onclick="window.location.href='{{authUrls.liveMode}}'">
+    Connect to your car
+  </button>
+  <p style="padding-top:20px">
+    Don't have access to a car? You can connect to a test vehicle using our <a href="https://smartcar.com/docs#test-mode">test mode</a>.
+  </p>
+  <button type="button" class="btn btn-secondary" onclick="window.location.href='{{authUrls.testMode}}'">Connect to a test car</button>
+</div>

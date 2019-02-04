@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detect Faces Check</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    function processImage(sourceImage, outputID) {
+        // Replace <Subscription Key> with your valid subscription key.
+        var subscriptionKey = "7d23af1f640a46d893a0ba94826dc990";
+
+        var uriBase =
+            "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
+
+        // Request parameters.
+        var params = {
+            "returnFaceId": "true"
+        };
+
+        // Display the image.
+        //var sourceImageUrl = document.getElementById("inputImage").value;
+       // document.querySelector("#sourceImage").src = sourceImageUrl;
+
+        // Perform the REST API call.
+        return $.ajax({
+            url: uriBase + "?" + $.param(params),
+
+            // Request headers.
+            beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Content-Type","application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+            },
+
+            type: "POST",
+
+            // Request body.
+            data: '{"url": ' + '"' + sourceImage + '"}',
+        })
+
+        .done(function(data) {
+            // Show formatted JSON on webpage.
+            $("#responseTextArea").val(JSON.stringify(data, null, 2));
+            outputID = data[0]['faceId'];
+        })
+
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            // Display error message.
+            var errorString = (errorThrown === "") ?
+                "Error. " : errorThrown + " (" + jqXHR.status + "): ";
+            errorString += (jqXHR.responseText === "") ?
+                "" : (jQuery.parseJSON(jqXHR.responseText).message) ?
+                    jQuery.parseJSON(jqXHR.responseText).message :
+                        jQuery.parseJSON(jqXHR.responseText).error.message;
+            alert(errorString);
+        });
+    };
+
+    function verify(){
+       // Replace <Subscription Key> with your valid subscription key.
+        var subscriptionKey = "7d23af1f640a46d893a0ba94826dc990";
+
+        var uriBase =
+                "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/verify";
+
+        // Request parameters.
+        var params = {
+          //nsdj
+        };
+
+        // Display the image.
+        var sourceImageUrl = document.getElementById("verifyImage").value;
+        document.querySelector("#sourceImage").src = sourceImageUrl;
+
+        var sourceImageUrl2 = document.getElementById("verifyImage2").value;
+        document.querySelector("#sourceImage2").src = sourceImageUrl2;
+
+        var faceID1, faceID2;
+        // var myAjax1 = processImage(sourceImageUrl, faceID1);
+        // var myAjax2 = processImage(sourceImageUrl2, faceID2);
+        $.when(processImage(sourceImageUrl, faceID1), processImage(sourceImageUrl2, faceID2)).done(function (faceID1, faceID2) {
+            console.log("faceID1 is", faceID1);
+            var fID1 = faceID1[0][0].faceId;
+            var fID2 = faceID2[0][0].faceId;
+            var verifyParams = {
+                faceId1: fID1,
+                faceId2: fID2,
+            };
+
+            // Perform the REST API call.
+            $.ajax({
+                url: uriBase,
+                dataType: 'json',
+
+                // Request headers.
+                beforeSend: function(xhrObj){
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+                },
+
+                type: "POST",
+
+                // Request body.
+                data: JSON.stringify({
+                    faceId1: fID1,
+                    faceId2: fID2,
+                }),
+                
+                //data: '{"faceId1": ' + '"' + faceID1 + '"' + ', ' + '"faceId2": ' + '"' + faceID2 + '"}', 
+                //data: '{"url": ' + '"' + sourceImageUrl + '"}'
+            })
+
+            .done(function(data) {
+                // Show formatted JSON on webpage.
+                console.log('hello world')
+                $("#responseTextArea").val(JSON.stringify(data, null, 2));
+            })
+
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                // Display error message.
+                var errorString = (errorThrown === "") ?
+                    "Error. " : errorThrown + " (" + jqXHR.status + "): ";
+                errorString += (jqXHR.responseText === "") ?
+                    "" : (jQuery.parseJSON(jqXHR.responseText).message) ?
+                        jQuery.parseJSON(jqXHR.responseText).message :
+                            jQuery.parseJSON(jqXHR.responseText).error.message;
+                alert(errorString);
+            });
+        });
+
+        //Somehow await the result(s) from processImage before proceeding with the ajax promise
+
+        
+    };
+
+    if (data[isIdentical]) {
+        a = document.createElement("a");
+        a.href = "login"
+    }
+
+</script>
+
+<h1>Detect Faces:</h1>
+Enter the URL to an image that includes a face or faces, then click
+the <strong>Analyze face</strong> button.<br><br>
+<!---
+Image to analyze: <input type="text" name="inputImage" id="inputImage"
+value="https://upload.wikimedia.org/wikipedia/commons/c/c3/RH_Louise_Lillian_Gish.jpg" />
+
+<button onclick="processImage()">Analyze face</button><br><br>
+--->
+Image to add: <input type="text" name="verifyImage" id="verifyImage"
+value= "https://i.imgur.com/rduvsD8.jpg" />
+
+Image to add: <input type="text" name="verifyImage2" id="verifyImage2"
+value= "https://i.imgur.com/s9pTE6J.jpg"/>
+
+<button onclick="verify()">Verify</button><br><br>
+
+<div id="wrapper" style="width:1020px; display:table;">
+    <div id="jsonOutput" style="width:600px; display:table-cell;">
+        Response:<br><br>
+
+        <textarea id="responseTextArea" class="UIInput"
+                  style="width:580px; height:400px;"></textarea>
+    </div>
+    <div id="imageDiv" style="width:420px; display:table-cell;">
+        Source image:<br><br>
+
+        <img id="sourceImage" width="400" />
+    </div>
+    <div id="imageDiv" style="width:420px; display:table-cell;">
+        Source image:<br><br>
+
+        <img id="sourceImage2" width="400" />
+    </div>
+</div>
+
+<a href="login">dev cont</a>
+
+</body>
+</html>
